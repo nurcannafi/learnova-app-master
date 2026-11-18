@@ -1,0 +1,27 @@
+# Maven
+**/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE & Editors
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & temp files
+*.log
+*.tmp
+.gemini/
+
+# Environment
+.env
+.env.local

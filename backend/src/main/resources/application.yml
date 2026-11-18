@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:LearnovaSuperSecretKey2026SecureJwtAuthenticationKeyLongString}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+  admin:
+    email: ${ADMIN_EMAIL:admin@learnova.az}
+    password: ${ADMIN_PASSWORD:password123}
+  # Demo Aysel/Cavid accounts only when explicitly enabled (never expose in UI)
+  demo-accounts: ${APP_DEMO_ACCOUNTS:false}
+  # Seed published sample courses + per-lecture local videos when catalog is empty
+  seed:
+    sample-content: ${APP_SEED_SAMPLE_CONTENT:true}
+
+spring:
+  application:
+    name: learnova-app
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/learnova_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+    show-sql: false
+    open-in-view: true

@@ -1,0 +1,66 @@
+/* Custom styling for Udemy Clone */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f9fa;
+    color: #2d2f31;
+}
+
+.udemy-purple {
+    color: #a435f0;
+}
+
+.bg-udemy-purple {
+    background-color: #a435f0;
+}
+
+.bg-udemy-purple:hover {
+    background-color: #8710d8;
+}
+
+.border-udemy-purple {
+    border-color: #a435f0;
+}
+
+.udemy-dark {
+    background-color: #1c1d1f;
+}
+
+/* Certificate Styles */
+.certificate-container {
+    background: #fffdf8;
+    border: 12px double #b4690e;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    position: relative;
+    font-family: 'Playfair Display', serif;
+}
+
+.certificate-seal {
+    width: 90px;
+    height: 90px;
+    background: radial-gradient(circle, #e5a73b 0%, #a46f13 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #certificateModal, #certificateModal * {
+        visibility: visible;
+    }
+    #certificateModal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white !important;
+        padding: 0 !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+}

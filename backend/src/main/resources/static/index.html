@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnova | Müasir Onlayn Təhsil Platforması</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/custom.css?v=20261118">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        learnova: {
+                            purple: '#6366f1',
+                            purpleDark: '#4f46e5',
+                            indigo: '#4338ca',
+                            dark: '#0f172a',
+                            gray: '#64748b',
+                            border: '#e2e8f0',
+                            lightBg: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 flex flex-col min-h-screen text-slate-800">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 h-18 flex items-center justify-between gap-4 py-3">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-6">
+                <a href="#" onclick="showView('catalog'); return false;" class="flex items-center space-x-2 text-2xl font-black text-slate-900 tracking-tight">
+                    <span class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-500 text-white flex items-center justify-center text-xl shadow-md">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </span>
+                    <span class="font-extrabold tracking-tight">Learnova<span class="text-indigo-600 font-extrabold text-xs ml-1 px-1.5 py-0.5 bg-indigo-50 border border-indigo-200 rounded">AZ</span></span>
+                </a>
+
+                <!-- Categories Dropdown Button -->
+                <div class="relative group hidden md:block">
+                    <button class="text-sm font-semibold text-slate-700 hover:text-indigo-600 flex items-center space-x-1.5 py-2">
+                        <i class="fa-solid fa-bars text-slate-400"></i>
+                        <span>Kateqoriyalar</span>
+                    </button>
+                    <!-- Dropdown Content -->
+                    <div id="navCategoriesDropdown" class="absolute left-0 mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-2xl py-2 hidden group-hover:block z-50">
+                        <div class="px-4 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Bütün Kateqoriyalar</div>
+                        <div id="navCategoryList" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-xl relative">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input id="searchInput" type="text" placeholder="Kurs, texnologiya və ya mövzu axtarın..." 
+                           class="w-full pl-11 pr-4 py-2.5 bg-slate-100 hover:bg-slate-50 focus:bg-white border border-transparent focus:border-indigo-500 rounded-full text-xs font-medium outline-none transition shadow-inner">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-3">
+                <!-- Admin Dashboard Button (Only for Admin) -->
+                <button id="navAdminBtn" onclick="showView('admin')" class="hidden text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Admin Paneli</span>
+                </button>
+
+                <!-- Instructor Button (For Instructor or Admin) -->
+                <button id="navInstructorBtn" onclick="openInstructorStudio()" class="hidden text-xs font-semibold text-slate-700 hover:text-indigo-600 lg:flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-chalkboard-user text-indigo-500"></i>
+                    <span>Müəllim Paneli</span>
+                </button>
+
+                <!-- My Courses Button (For Logged In Users) -->
+                <button id="navMyCoursesBtn" onclick="showView('my-courses')" class="hidden text-xs font-semibold text-slate-700 hover:text-indigo-600 flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-book-open text-indigo-500"></i>
+                    <span>Kurslarım</span>
+                </button>
+
+                <!-- Cart Button -->
+                <button onclick="toggleCartModal(true)" class="relative p-2.5 text-slate-700 hover:text-indigo-600 rounded-full hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-cart-shopping text-base"></i>
+                    <span id="cartCountBadge" class="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-black rounded-full h-4 w-4 flex items-center justify-center shadow">0</span>
+                </button>
+
+                <!-- Certificate Verification Link -->
+                <button onclick="showView('cert-verify')" class="text-xs text-slate-600 hover:text-slate-900 border border-slate-300 px-2.5 py-1.5 rounded-lg hover:bg-slate-50 hidden sm:flex items-center space-x-1 transition" title="Sertifikat yoxla">
+                    <i class="fa-solid fa-award text-amber-500"></i>
+                    <span>Yoxla</span>
+                </button>
+
+                <!-- User Profile / Auth Button -->
+                <div class="relative" id="userMenuWrapper">
+                    <div id="userProfileBtn" onclick="toggleUserDropdown()" class="flex items-center space-x-2 cursor-pointer border border-slate-300 rounded-full pl-2 pr-3 py-1 hover:border-indigo-500 transition bg-white shadow-sm">
+                        <div class="w-6 h-6 rounded-full bg-indigo-600 text-white text-[11px] font-bold flex items-center justify-center" id="userAvatar">Q</div>
+                        <span id="userNameDisplay" class="text-xs font-bold text-slate-800 max-w-[100px] truncate">Giriş et</span>
+                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+                    </div>
+
+                    <!-- User Menu Dropdown -->
+                    <div id="userMenuDropdown" class="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl py-2 hidden z-50">
+                        <div class="px-4 py-2 border-b border-slate-100">
+                            <p class="text-[10px] text-slate-400 uppercase font-semibold">Hesab Məlumatı:</p>
+                            <p id="userMenuFullName" class="text-xs font-bold text-slate-800">Qonaq</p>
+                            <p id="userMenuRole" class="text-[11px] text-indigo-600 font-semibold">Daxil olmayıb</p>
+                        </div>
+                        <div class="py-1" id="userRoleLinks">
+                            <!-- Populated dynamically based on role -->
+                        </div>
+                        <div class="border-t border-slate-100 py-1" id="userAuthAction">
+                            <button onclick="openAuthModal()" class="w-full text-left px-4 py-2 text-xs text-indigo-600 hover:bg-indigo-50 font-bold flex items-center space-x-2">
+                                <i class="fa-solid fa-right-to-bracket"></i>
+                                <span>Daxil Ol / Qeydiyyat</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1">
+
+        <!-- ==================== VIEW 1: CATALOG VIEW ==================== -->
+        <section id="catalogView" class="view-panel">
+            <!-- Hero Banner -->
+            <div class="max-w-7xl mx-auto px-4 pt-6 pb-4">
+                <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-8 md:p-12 shadow-2xl border border-slate-800">
+                    <div class="max-w-xl relative z-10">
+                        <span class="inline-flex items-center space-x-1.5 bg-indigo-500/20 border border-indigo-400/40 text-indigo-300 text-xs font-bold px-3 py-1 rounded-full mb-4">
+                            <span>🚀</span>
+                            <span>Learnova 2026 Onlayn Təhsil</span>
+                        </span>
+                        <h1 class="text-3xl md:text-5xl font-black tracking-tight mb-4 leading-tight">
+                            Gələcəyin bacarıqlarını bu gün qazanın.
+                        </h1>
+                        <p class="text-slate-300 text-xs md:text-sm mb-6 leading-relaxed">
+                            Spring Boot 3, PostgreSQL, Süni İntellekt, React 19 və UI/UX üzrə peşəkar kurslar. İzləyin, dərsləri tamamlayın və rəsmi təsdiqlənmiş sertifikat əldə edin.
+                        </p>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <a href="#coursesGrid" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-indigo-600/30">
+                                Kursları Kəşf Et
+                            </a>
+                            <div class="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2.5 rounded-xl text-xs">
+                                <i class="fa-solid fa-ticket text-amber-400"></i>
+                                <span>Kupon: <strong class="text-amber-300 font-mono font-bold">LEARNOVA50</strong> (50% Endirim)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Filter Bar -->
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div class="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none" id="categoryPills">
+                        <button onclick="filterByCategory(null)" class="category-pill active px-4 py-2 rounded-full text-xs font-bold bg-slate-900 text-white whitespace-nowrap transition shadow-sm">
+                            Bütün Kurslar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Courses Grid Section -->
+            <div class="max-w-7xl mx-auto px-4 py-6" id="coursesGridSection">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900" id="catalogSectionTitle">Bütün Kurslar</h2>
+                        <p class="text-xs text-slate-500 mt-1">Dərsləri istənilən vaxt, istənilən cihazda rahat izləyin</p>
+                    </div>
+                    <span id="coursesCountBadge" class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full">Yüklənir...</span>
+                </div>
+
+                <!-- Course Cards Grid -->
+                <div id="coursesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Trust Bar / Feature highlights -->
+            <div class="bg-white border-y border-slate-200 mt-12 py-10">
+                <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shadow-sm border border-indigo-100">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">Ömürlük Giriş</h4>
+                            <p class="text-[11px] text-slate-500">Kursa bir dəfə yazılın, həmişə izləyin</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-sm border border-amber-100">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">Rəsmi Sertifikat</h4>
+                            <p class="text-[11px] text-slate-500">100% bitirən tələbələrə xüsusi kodla təqdim olunur</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shadow-sm border border-purple-100">
+                            <i class="fa-solid fa-ticket"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">Endirim Kuponları</h4>
+                            <p class="text-[11px] text-slate-500">LEARNOVA50 və PULSUZ100 ilə dərhal endirim</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-sm border border-emerald-100">
+                            <i class="fa-solid fa-shield-check"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">Spring Security + JWT</h4>
+                            <p class="text-[11px] text-slate-500">Rol əsaslı təhlükəsiz REST API və PostgreSQL 17</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 2: COURSE DETAIL VIEW ==================== -->
+        <section id="courseDetailView" class="view-panel hidden">
+            <div class="bg-slate-900 text-white py-10 border-b border-slate-800">
+                <div class="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row gap-8">
+                    <div class="lg:w-2/3">
+                        <button onclick="showView('catalog')" class="text-xs font-semibold text-indigo-400 hover:text-white mb-4 flex items-center space-x-1.5 transition">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            <span>Bütün kurslara qayıt</span>
+                        </button>
+                        <span id="detailCategoryBadge" class="inline-block text-xs font-bold bg-indigo-950 text-indigo-300 border border-indigo-800 px-3 py-1 rounded-full mb-3">Backend</span>
+                        <h1 id="detailTitle" class="text-2xl md:text-4xl font-black mb-3 leading-snug">Spring Boot 3 Masterclass</h1>
+                        <p id="detailDescription" class="text-slate-300 text-xs md:text-sm mb-4 leading-relaxed"></p>
+                        
+                        <div class="flex flex-wrap items-center gap-4 text-xs">
+                            <div class="flex items-center space-x-1 text-amber-400 font-bold">
+                                <span id="detailRating">5.0</span>
+                                <div class="flex text-amber-400 text-xs">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                                </div>
+                                <span id="detailReviewCount" class="text-slate-400 font-normal underline cursor-pointer">(1 rəy)</span>
+                            </div>
+                            <div class="text-slate-300">
+                                <i class="fa-solid fa-user-graduate mr-1 text-indigo-400"></i> <span id="detailStudentsCount">1 tələbə</span>
+                            </div>
+                            <div class="text-slate-300">
+                                <i class="fa-solid fa-user-tie mr-1 text-indigo-400"></i> Müəllif: <strong id="detailInstructor" class="text-white underline">Müəllim</strong>
+                            </div>
+                            <div class="text-slate-300">
+                                <i class="fa-solid fa-layer-group mr-1 text-indigo-400"></i> Səviyyə: <span id="detailLevel" class="font-medium">Orta</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sticky Purchase Card for Desktop -->
+                    <div class="lg:w-1/3">
+                        <div class="bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden sticky top-24">
+                            <img id="detailThumbnail" src="" alt="Course Preview" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <div class="flex items-baseline space-x-3 mb-4">
+                                    <span id="detailPrice" class="text-3xl font-black text-slate-900">49.99 AZN</span>
+                                    <span class="text-xs text-slate-400 line-through">99.99 AZN</span>
+                                    <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">50% Endirim</span>
+                                </div>
+
+                                <div id="detailActionButtons" class="space-y-2.5">
+                                    <!-- Dynamic Action Buttons depending on enrollment -->
+                                </div>
+
+                                <div class="mt-6 text-xs text-slate-600 space-y-2 border-t border-slate-100 pt-4">
+                                    <div class="font-bold text-slate-800 mb-2">Bu kursa daxildir:</div>
+                                    <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> <span id="detailLecturesCount">Dərslər (Video və Məqalə)</span></div>
+                                    <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> <span>Ömürlük tam giriş</span></div>
+                                    <div class="flex items-center space-x-2"><i class="fa-solid fa-award text-amber-500"></i> <span>Rəsmi Bitirmə Sertifikatı</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course Curriculum and Reviews Section -->
+            <div class="max-w-7xl mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8">
+                <div class="lg:w-2/3 space-y-8">
+                    <!-- Curriculum Accordion -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-slate-900">Kursun Proqramı (Sillabus)</h3>
+                            <span id="curriculumSummary" class="text-xs text-slate-500 font-semibold">Bölmələr və dərslər</span>
+                        </div>
+                        <div id="curriculumAccordion" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Section -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-slate-900">Tələbə Rəyləri</h3>
+                            <div class="flex items-center space-x-1 text-amber-500 font-black">
+                                <i class="fa-solid fa-star"></i>
+                                <span id="reviewAvgScore">5.0</span>
+                                <span class="text-xs text-slate-400 font-normal">/ 5.0</span>
+                            </div>
+                        </div>
+
+                        <!-- Add Review Box (if enrolled) -->
+                        <div id="addReviewBox" class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-4 mb-6 hidden">
+                            <h4 class="text-xs font-bold text-slate-900 mb-2">Bu kurs haqqında fikirlərinizi bölüşün:</h4>
+                            <div class="flex items-center space-x-2 mb-3">
+                                <span class="text-xs text-slate-600 font-medium">Ulduz verin:</span>
+                                <div class="flex space-x-1" id="starRatingSelect">
+                                    <i class="fa-solid fa-star text-amber-400 cursor-pointer" data-val="1"></i>
+                                    <i class="fa-solid fa-star text-amber-400 cursor-pointer" data-val="2"></i>
+                                    <i class="fa-solid fa-star text-amber-400 cursor-pointer" data-val="3"></i>
+                                    <i class="fa-solid fa-star text-amber-400 cursor-pointer" data-val="4"></i>
+                                    <i class="fa-solid fa-star text-amber-400 cursor-pointer" data-val="5"></i>
+                                </div>
+                            </div>
+                            <textarea id="reviewCommentInput" rows="2" placeholder="Kurs sizin üçün necə keçdi? Təəssüratlarınızı yazın..." class="w-full text-xs p-3 bg-white border border-slate-300 rounded-lg focus:border-indigo-500 outline-none"></textarea>
+                            <button onclick="submitReview()" class="mt-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-sm">
+                                Rəyi Paylaş
+                            </button>
+                        </div>
+
+                        <!-- Review List -->
+                        <div id="reviewsList" class="space-y-4 divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 3: CLASSROOM / LEARNING PLAYER VIEW ==================== -->
+        <section id="classroomView" class="view-panel hidden bg-slate-950 min-h-screen text-white">
+            <div class="bg-slate-900 border-b border-slate-800 px-6 py-3.5 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button onclick="exitClassroom()" class="text-slate-400 hover:text-white text-xs font-semibold flex items-center space-x-1.5 transition">
+                        <i class="fa-solid fa-chevron-left"></i>
+                        <span>Kursdan Çıx</span>
+                    </button>
+                    <span class="text-slate-700">|</span>
+                    <h2 id="classroomCourseTitle" class="text-xs font-bold truncate max-w-md text-slate-200">Spring Boot 3 Masterclass</h2>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-28 bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                            <div id="classroomProgressBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <span id="classroomProgressText" class="text-xs text-slate-300 font-mono font-bold">0%</span>
+                    </div>
+
+                    <button id="classroomCertBtn" onclick="viewEarnedCertificate()" class="hidden bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs px-3.5 py-1.5 rounded-lg flex items-center space-x-1.5 transition shadow-lg animate-pulse">
+                        <i class="fa-solid fa-award"></i>
+                        <span>Sertifikata Bax</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row h-[calc(100vh-60px)] overflow-hidden">
+                <!-- Media Player Window -->
+                <div class="flex-1 flex flex-col bg-black overflow-y-auto">
+                    <div id="mediaContainer" class="w-full bg-black aspect-video max-h-[60vh] flex items-center justify-center relative">
+                        <!-- Populated with <video>, iframe or error retry UI -->
+                    </div>
+
+                    <!-- Lecture Details Footer -->
+                    <div class="p-6 bg-slate-900 border-t border-slate-800 flex-1">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 id="currentLectureTitle" class="text-base font-bold text-white mb-1">Dərs 1.1 Giriş</h3>
+                                <p id="currentLectureMeta" class="text-xs text-slate-400">Bölmə 1 • Video dərs • 12 dəqiqə</p>
+                            </div>
+                            <button id="markCompleteBtn" onclick="toggleCurrentLectureComplete()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center space-x-2 transition shadow">
+                                <i id="markCompleteIcon" class="fa-regular fa-square"></i>
+                                <span id="markCompleteLabel">Tamamlandı kimi qeyd et</span>
+                            </button>
+                        </div>
+                        <div id="articleContentWrapper" class="hidden bg-slate-800/90 rounded-2xl p-6 text-slate-200 text-xs leading-relaxed border border-slate-700 shadow-inner">
+                            <!-- Article body -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Playlist / Curriculum Sidebar -->
+                <div class="w-full lg:w-96 bg-slate-900 border-l border-slate-800 flex flex-col h-full">
+                    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                        <span class="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Kursun Məzmunu</span>
+                        <span id="playlistStats" class="text-xs text-slate-400 font-mono font-semibold">0 / 0 dərs</span>
+                    </div>
+                    <div id="classroomPlaylist" class="flex-1 overflow-y-auto divide-y divide-slate-800/80">
+                        <!-- Populated dynamically with sections & lectures -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 4: MY COURSES & DASHBOARD ==================== -->
+        <section id="myCoursesView" class="view-panel hidden max-w-7xl mx-auto px-4 py-8">
+            <div class="mb-6">
+                <h1 class="text-2xl md:text-3xl font-black text-slate-900 mb-1">Tələbə Paneli</h1>
+                <p class="text-xs text-slate-500">Yazıldığınız kursları izləyin, tərəqqinizə nəzarət edin və sertifikatlarınızı yükləyin</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex items-center space-x-6 border-b border-slate-200 mb-8">
+                <button onclick="switchDashboardTab('courses')" id="tabBtnCourses" class="dashboard-tab active pb-3 text-xs font-bold text-indigo-600 border-b-2 border-indigo-600">
+                    Kurslarım (<span id="myCoursesCount">0</span>)
+                </button>
+                <button onclick="switchDashboardTab('certificates')" id="tabBtnCerts" class="dashboard-tab pb-3 text-xs font-semibold text-slate-500 hover:text-slate-900 border-b-2 border-transparent">
+                    Sertifikatlarım (<span id="myCertsCount">0</span>)
+                </button>
+                <button onclick="switchDashboardTab('orders')" id="tabBtnOrders" class="dashboard-tab pb-3 text-xs font-semibold text-slate-500 hover:text-slate-900 border-b-2 border-transparent">
+                    Sifariş Tarixçəsi
+                </button>
+            </div>
+
+            <!-- Tab 1: My Courses Grid -->
+            <div id="tabContentCourses">
+                <div id="myCoursesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <!-- Populated dynamically -->
+                </div>
+                <div id="emptyCoursesNotice" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                    <i class="fa-solid fa-graduation-cap text-4xl text-slate-300 mb-3"></i>
+                    <h3 class="text-sm font-bold text-slate-700">Hələ heç bir kursa yazılmamısınız</h3>
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto mt-1 mb-4">Maraqlandığınız kursları seçərək öyrənməyə dərhal başlayın.</p>
+                    <button onclick="showView('catalog')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow">
+                        Kursları Kəşf Et
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab 2: My Certificates -->
+            <div id="tabContentCertificates" class="hidden">
+                <div id="myCertificatesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Tab 3: Order History -->
+            <div id="tabContentOrders" class="hidden">
+                <div id="myOrdersList" class="space-y-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 5: INSTRUCTOR STUDIO ==================== -->
+        <section id="instructorStudioView" class="view-panel hidden max-w-7xl mx-auto px-4 py-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black text-slate-900">Müəllim Studiyası (Instructor Studio)</h1>
+                    <p class="text-xs text-slate-500 mt-1">Yeni kurslar tərtib edin, bölmələr və dərslər əlavə edin, təsdiqə göndərin</p>
+                </div>
+                <button onclick="toggleNewCourseModal(true)" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center space-x-2 transition shadow">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Yeni Kurs Yarat</span>
+                </button>
+            </div>
+
+            <!-- Instructor's Created Courses List -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 mb-8">
+                <h3 class="text-base font-bold text-slate-900 mb-4">Tədris Etdiyiniz Kurslar</h3>
+                <div id="instructorCoursesList" class="divide-y divide-slate-100">
+                    <!-- Populated dynamically with status badge and Submit button -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 6: ADMIN DASHBOARD (NEW!) ==================== -->
+        <section id="adminView" class="view-panel hidden max-w-7xl mx-auto px-4 py-8">
+            <div class="mb-8 flex items-center justify-between">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="w-8 h-8 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-sm shadow">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </span>
+                        <h1 class="text-2xl md:text-3xl font-black text-slate-900">İnzibatçı İdarəetmə Paneli (Admin)</h1>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">Platform statistikası, kursların təsdiqi/moderasiyası, istifadəçilər və kuponlar</p>
+                </div>
+                <button onclick="loadAdminDashboard()" class="text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl transition flex items-center space-x-1.5">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Məlumatları Yenilə</span>
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase">Cəmi İstifadəçi</p>
+                    <p id="admStatUsers" class="text-2xl font-black text-slate-900 mt-1">0</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5"><span id="admStatStudents">0</span> tələbə / <span id="admStatInstructors">0</span> müəllim</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase">Cəmi Kurs</p>
+                    <p id="admStatCourses" class="text-2xl font-black text-slate-900 mt-1">0</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5"><span id="admStatPublished">0</span> dərc olunub</p>
+                </div>
+                <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-amber-700 uppercase">Təsdiq Gözləyən</p>
+                    <p id="admStatPending" class="text-2xl font-black text-amber-800 mt-1">0</p>
+                    <p class="text-[10px] text-amber-600 mt-0.5">Moderasiya tələb olunur</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase">Cəmi Yazılma</p>
+                    <p id="admStatEnrollments" class="text-2xl font-black text-indigo-600 mt-1">0</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Aktiv tələbə qeydiyyatı</p>
+                </div>
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-slate-400 uppercase">Sifarişlər</p>
+                    <p id="admStatOrders" class="text-2xl font-black text-slate-900 mt-1">0</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">Tamamlanmış əməliyyat</p>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200 shadow-sm">
+                    <p class="text-[11px] font-bold text-emerald-700 uppercase">Ümumi Gəlir</p>
+                    <p id="admStatRevenue" class="text-2xl font-black text-emerald-800 mt-1">0.00 AZN</p>
+                    <p class="text-[10px] text-emerald-600 mt-0.5">Real dövriyyə</p>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="flex items-center space-x-6 border-b border-slate-200 mb-6 overflow-x-auto">
+                <button onclick="switchAdminTab('courses')" id="admTabBtnCourses" class="admin-tab active pb-3 text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 whitespace-nowrap">
+                    Kursların Moderasiyası
+                </button>
+                <button onclick="switchAdminTab('instructors')" id="admTabBtnInstructors" class="admin-tab pb-3 text-xs font-semibold text-slate-500 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap">
+                    Müəllim Müraciətləri
+                </button>
+                <button onclick="switchAdminTab('users')" id="admTabBtnUsers" class="admin-tab pb-3 text-xs font-semibold text-slate-500 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap">
+                    İstifadəçilərin İdarəsi
+                </button>
+                <button onclick="switchAdminTab('coupons')" id="admTabBtnCoupons" class="admin-tab pb-3 text-xs font-semibold text-slate-500 hover:text-slate-900 border-b-2 border-transparent whitespace-nowrap">
+                    Kuponlar & Endirimlər
+                </button>
+            </div>
+
+            <!-- Admin Tab 1: Course Moderation -->
+            <div id="admTabContentCourses" class="space-y-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-900">Bütün Kurslar və Təsdiq Növbəsi</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-slate-500">Filtr:</span>
+                            <select id="admCourseFilter" onchange="loadAdminCourses()" class="text-xs p-1.5 border border-slate-300 rounded-lg outline-none">
+                                <option value="">Hamısı</option>
+                                <option value="PENDING">Təsdiq Gözləyən (PENDING)</option>
+                                <option value="PUBLISHED">Dərc Edilmiş (PUBLISHED)</option>
+                                <option value="DRAFT">Qaralama (DRAFT)</option>
+                                <option value="REJECTED">İmtina Edilmiş (REJECTED)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table class="w-full text-xs text-left">
+                        <thead class="text-[11px] uppercase bg-slate-50 text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Kurs</th>
+                                <th class="p-3">Müəllim</th>
+                                <th class="p-3">Qiymət</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Tələbələr</th>
+                                <th class="p-3 text-right">Əməliyyatlar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admCoursesTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Tab: Instructor Applications -->
+            <div id="admTabContentInstructors" class="hidden">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-900">Müəllim Olmaq Üçün Müraciətlər</h3>
+                        <select id="admInstructorAppFilter" onchange="loadAdminInstructorApps()" class="text-xs p-1.5 border border-slate-300 rounded-lg outline-none">
+                            <option value="PENDING">Gözləyən (PENDING)</option>
+                            <option value="">Hamısı</option>
+                            <option value="APPROVED">Təsdiqlənmiş</option>
+                            <option value="REJECTED">İmtina</option>
+                        </select>
+                    </div>
+                    <table class="w-full text-xs text-left">
+                        <thead class="text-[11px] uppercase bg-slate-50 text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">İstifadəçi</th>
+                                <th class="p-3">Email</th>
+                                <th class="p-3">Bio</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3 text-right">Əməliyyatlar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admInstructorAppsTableBody" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Tab 2: Users Management -->
+            <div id="admTabContentUsers" class="hidden">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                    <h3 class="text-sm font-bold text-slate-900 mb-4">Platformanın Qeydiyyatdan Keçmiş İstifadəçiləri</h3>
+                    <table class="w-full text-xs text-left">
+                        <thead class="text-[11px] uppercase bg-slate-50 text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Ad və Soyad</th>
+                                <th class="p-3">Email</th>
+                                <th class="p-3">Cari Rol</th>
+                                <th class="p-3">Qeydiyyat Tarixi</th>
+                                <th class="p-3 text-right">Rolu Dəyişdir</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admUsersTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Tab 3: Coupons Management -->
+            <div id="admTabContentCoupons" class="hidden space-y-6">
+                <!-- Create Coupon Card -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm max-w-xl">
+                    <h4 class="text-sm font-bold text-slate-900 mb-3">Yeni Kupon Əlavə Et</h4>
+                    <form onsubmit="handleCreateCoupon(event)" class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Kupon Kodu *</label>
+                                <input id="admCouponCode" type="text" required placeholder="Məs: YAZ2026" class="w-full text-xs p-2 border border-slate-300 rounded-xl uppercase font-mono font-bold outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Endirim Tipi</label>
+                                <select id="admCouponType" class="w-full text-xs p-2 border border-slate-300 rounded-xl outline-none">
+                                    <option value="PERCENTAGE">Faiz (%)</option>
+                                    <option value="FIXED">Sabit Məbləğ (AZN)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Dəyəri *</label>
+                                <input id="admCouponValue" type="number" step="0.01" required value="20" class="w-full text-xs p-2 border border-slate-300 rounded-xl outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Müddət (ay)</label>
+                                <input id="admCouponMonths" type="number" value="6" class="w-full text-xs p-2 border border-slate-300 rounded-xl outline-none">
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs px-4 py-2 rounded-xl transition shadow">
+                            Kuponu Aktivləşdir
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Coupons Table -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-x-auto">
+                    <h4 class="text-sm font-bold text-slate-900 mb-4">Mövcud Kuponlar</h4>
+                    <table class="w-full text-xs text-left">
+                        <thead class="text-[11px] uppercase bg-slate-50 text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="p-3">Kod</th>
+                                <th class="p-3">Növü</th>
+                                <th class="p-3">Dəyəri</th>
+                                <th class="p-3">Bitmə Tarixi</th>
+                                <th class="p-3 text-right">Sil</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admCouponsTableBody" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VIEW 7: CERTIFICATE VERIFICATION VIEW ==================== -->
+        <section id="certVerifyView" class="view-panel hidden max-w-2xl mx-auto px-4 py-12">
+            <div class="bg-white border border-slate-200 rounded-3xl shadow-xl p-8 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4 border border-amber-200">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 mb-2">Sertifikatın Həqiqiliyini Yoxlayın</h2>
+                <p class="text-xs text-slate-500 mb-6">Learnova tərəfindən verilmiş rəsmi sertifikat kodunu daxil edərək təsdiqləyin.</p>
+
+                <div class="flex gap-2 max-w-md mx-auto mb-8">
+                    <input id="verifyCodeInput" type="text" placeholder="Məs: LNV-1-CERT2026" class="flex-1 px-4 py-2.5 border border-slate-300 rounded-xl text-xs uppercase outline-none focus:border-indigo-500 font-mono font-bold">
+                    <button onclick="verifyCertificateAction()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow">
+                        Yoxla
+                    </button>
+                </div>
+
+                <div id="verifyResultCard" class="hidden max-w-md mx-auto text-left bg-emerald-50 border border-emerald-200 rounded-2xl p-6 shadow-sm">
+                    <div class="flex items-center space-x-2 text-emerald-800 font-bold text-xs mb-3">
+                        <i class="fa-solid fa-circle-check text-base text-emerald-600"></i>
+                        <span>Sertifikat Təsdiqləndi!</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs text-slate-700">
+                        <div><strong class="text-slate-900">Tələbə:</strong> <span id="vStudentName">-</span></div>
+                        <div><strong class="text-slate-900">Kurs:</strong> <span id="vCourseTitle">-</span></div>
+                        <div><strong class="text-slate-900">Müəllim:</strong> <span id="vInstructorName">-</span></div>
+                        <div><strong class="text-slate-900">Verilmə tarixi:</strong> <span id="vIssueDate">-</span></div>
+                        <div><strong class="text-slate-900">Kod:</strong> <span id="vCode" class="font-mono bg-white px-2 py-0.5 rounded border border-slate-200 font-bold">-</span></div>
+                    </div>
+                    <button onclick="openCertificateModalFromVerification()" class="mt-4 w-full bg-amber-500 hover:bg-amber-400 text-slate-900 text-xs font-bold py-2 rounded-lg transition shadow-sm">
+                        Sertifikat Sənədinə Bax
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-10 mt-16 text-xs">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center space-x-3">
+                <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </span>
+                <span class="text-white font-bold text-sm">Learnova (Spring Boot 3 + PostgreSQL 17 + Docker)</span>
+            </div>
+            <div>
+                <span>ER Diaqramı əsasında 12 cədvəlli Onlayn Təhsil Sistemi</span>
+            </div>
+            <div class="flex items-center space-x-4 text-slate-400">
+                <span>Müasir Təhsil Platforması</span>
+                <span>•</span>
+                <span>REST API</span>
+                <span>•</span>
+                <span>Bitirmə Sertifikatı</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- 1. CART & CHECKOUT MODAL -->
+    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-200">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-cart-shopping text-indigo-600"></i>
+                    <span>Səbətiniz (<span id="cartModalCount">0</span> kurs)</span>
+                </h3>
+                <button onclick="toggleCartModal(false)" class="text-slate-400 hover:text-slate-600 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-6 max-h-72 overflow-y-auto divide-y divide-slate-100" id="cartItemsList">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-xs font-bold text-slate-700">Endirim və ya Kupon Kodu:</label>
+                    <div class="flex gap-2">
+                        <input id="couponInput" type="text" placeholder="Məs: LEARNOVA50 və ya PULSUZ100" class="flex-1 px-3.5 py-2 border border-slate-300 rounded-xl text-xs uppercase outline-none focus:border-indigo-500 font-mono font-bold">
+                        <button onclick="applyCoupon()" class="bg-slate-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow">
+                            Tətbiq Et
+                        </button>
+                    </div>
+                    <p id="couponFeedback" class="text-[11px] font-medium hidden"></p>
+                </div>
+
+                <div class="space-y-1.5 text-xs text-slate-600 pt-2 border-t border-slate-200">
+                    <div class="flex justify-between">
+                        <span>İlkin Məbləğ:</span>
+                        <span id="cartOriginalPrice" class="font-bold text-slate-900">0.00 AZN</span>
+                    </div>
+                    <div id="cartDiscountRow" class="flex justify-between text-emerald-600 hidden font-semibold">
+                        <span>Endirim:</span>
+                        <span id="cartDiscountAmount">-0.00 AZN</span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Yekun Ödəniş:</span>
+                        <span id="cartFinalPrice" class="text-indigo-600 font-black text-base">0.00 AZN</span>
+                    </div>
+                </div>
+
+                <button onclick="executeCheckout()" id="checkoutBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-3 rounded-xl transition shadow-lg shadow-indigo-600/30">
+                    Sifarişi Tamamla və Dərslərə Başla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. OFFICIAL LUXURY CERTIFICATE MODAL -->
+    <div id="certificateModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="relative max-w-3xl w-full my-8">
+            <div class="flex justify-end gap-2 mb-3 no-print">
+                <button onclick="window.print()" class="bg-slate-900 hover:bg-black text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center space-x-1.5 shadow">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Çap Et / PDF Saxla</span>
+                </button>
+                <button onclick="toggleCertificateModal(false)" class="bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="certificate-container p-10 md:p-14 text-center rounded-2xl bg-white shadow-2xl relative overflow-hidden">
+                <div class="border-2 border-amber-800/40 p-8 rounded-xl relative">
+                    <div class="text-amber-700 text-3xl mb-2">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-black text-slate-900 tracking-wider uppercase mb-1">
+                        BİTİRMƏ SERTİFİKATI
+                    </h2>
+                    <p class="text-xs uppercase tracking-widest text-amber-900 font-bold mb-6">
+                        CERTIFICATE OF COMPLETION • LEARNOVA ONLINE EDUCATION
+                    </p>
+
+                    <p class="text-xs italic text-slate-600 mb-2">Bu sənəd rəsmi olaraq təsdiq edir ki,</p>
+                    <h3 id="certStudentName" class="text-2xl md:text-4xl font-bold text-slate-900 border-b-2 border-amber-800/20 pb-2 inline-block px-8 mb-4">
+                        Tələbə Adı
+                    </h3>
+
+                    <p class="text-xs italic text-slate-600 mb-2">aşağıdakı təlim proqramını və bütün dərslərini 100% müvəffəqiyyətlə tamamlamışdır:</p>
+                    <h4 id="certCourseTitle" class="text-xl md:text-2xl font-bold text-amber-950 mb-8 max-w-xl mx-auto leading-snug">
+                        Kurs Başlığı
+                    </h4>
+
+                    <div class="flex items-end justify-between pt-6 border-t border-amber-800/20 text-left text-xs">
+                        <div>
+                            <p class="font-bold text-slate-900" id="certInstructorName">Müəllim</p>
+                            <p class="text-slate-500 text-[10px]">Baş Təlimçi & Proqram Rəhbəri</p>
+                            <div class="w-32 border-b border-slate-400 mt-2"></div>
+                        </div>
+
+                        <div class="certificate-seal flex flex-col items-center justify-center text-white text-center">
+                            <i class="fa-solid fa-star text-xs mb-0.5"></i>
+                            <span class="text-[9px] font-extrabold uppercase leading-none">RƏSMİ<br>MÖHÜR</span>
+                            <i class="fa-solid fa-star text-xs mt-0.5"></i>
+                        </div>
+
+                        <div class="text-right">
+                            <p class="font-mono text-slate-800 font-bold" id="certCodeDisplay">LNV-CERT</p>
+                            <p class="text-slate-500 text-[10px]">Tarix: <span id="certIssueDate">17.11.2026</span></p>
+                            <div class="w-32 border-b border-slate-400 mt-2 ml-auto"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. INSTRUCTOR: CREATE COURSE MODAL -->
+    <div id="newCourseModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl p-6 border border-slate-200">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                <h3 class="font-bold text-slate-900 text-base">Yeni Kurs Əlavə Edin</h3>
+                <button onclick="toggleNewCourseModal(false)" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="createCourseForm" onsubmit="handleCreateCourse(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kursun Başlığı *</label>
+                    <input id="ncTitle" type="text" required placeholder="Məs: Docker və Kubernetes Praktiki Kurs" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:border-indigo-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Kateqoriya *</label>
+                        <select id="ncCategory" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:border-indigo-500 outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Səviyyə</label>
+                        <select id="ncLevel" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:border-indigo-500 outline-none">
+                            <option value="BEGINNER">Başlanğıc</option>
+                            <option value="INTERMEDIATE">Orta</option>
+                            <option value="ADVANCED">İrəli</option>
+                            <option value="ALL_LEVELS">Hər kəs üçün</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Qiymət (AZN) *</label>
+                    <input id="ncPrice" type="number" step="0.01" required value="29.99" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Şəkil URL (Thumbnail)</label>
+                    <input id="ncThumbnail" type="url" value="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:border-indigo-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kursun Təsviri</label>
+                    <textarea id="ncDescription" rows="2" placeholder="Kursun qısa məzmunu və öyrədəcəkləri..." class="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:border-indigo-500 outline-none"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-3 rounded-xl transition shadow">
+                    Kursu Yarat (Qaralama)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. INSTRUCTOR: ADD LECTURE MODAL -->
+    <div id="addLectureModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl p-6 border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                <h3 class="font-bold text-slate-900 text-sm">Bölməyə Dərs Əlavə Edin</h3>
+                <button onclick="toggleAddLectureModal(false)" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="addLectureForm" onsubmit="handleAddLecture(event)" class="space-y-3">
+                <input type="hidden" id="alSectionId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Dərsin Başlığı *</label>
+                    <input id="alTitle" type="text" required placeholder="Məs: 1.1 Giriş və Quraşdırma" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Format</label>
+                        <select id="alContentType" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                            <option value="VIDEO">Video Dərs</option>
+                            <option value="ARTICLE">Məqalə / Qeyd</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Müddət (dəq)</label>
+                        <input id="alDuration" type="number" value="15" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Video MP4 və ya YouTube URL</label>
+                    <input id="alContentUrl" type="text" value="/videos/big_buck_bunny.mp4" required placeholder="/videos/big_buck_bunny.mp4" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Məqalə Mətni (Əgər məqalədirsə)</label>
+                    <textarea id="alTextContent" rows="3" placeholder="Mətn və ya izahat qeydləri..." class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 rounded-xl transition">
+                    Dərsi Saxla
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 5. AUTH MODAL (LOGIN & REGISTRATION) -->
+    <div id="authModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl p-6 border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                <div class="flex space-x-4">
+                    <button onclick="switchAuthTab('login')" id="authTabLogin" class="text-xs font-bold text-indigo-600 border-b-2 border-indigo-600 pb-1">
+                        Daxil Ol
+                    </button>
+                    <button onclick="switchAuthTab('register')" id="authTabRegister" class="text-xs font-bold text-slate-400 hover:text-slate-700 pb-1">
+                        Qeydiyyatdan Keç
+                    </button>
+                </div>
+                <button onclick="toggleAuthModal(false)" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event); return false;" novalidate class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Email</label>
+                    <input id="loginEmail" type="email" required placeholder="ad@domain.com" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Şifrə</label>
+                    <input id="loginPassword" type="password" required placeholder="Şifrəniz" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div id="loginAlert" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 p-2.5 rounded-xl font-medium"></div>
+                <button type="button" onclick="handleLogin(event)" id="loginSubmitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-2.5 rounded-xl transition shadow">
+                    Daxil Ol
+                </button>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="registerForm" onsubmit="handleRegister(event); return false;" novalidate class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Ad və Soyad *</label>
+                    <input id="regFullName" type="text" required placeholder="Məs: Əli Əliyev" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Email Ünvanı *</label>
+                    <input id="regEmail" type="email" required placeholder="ad@domain.com" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Şifrə *</label>
+                    <input id="regPassword" type="password" required minlength="6" placeholder="Minimum 6 simvol" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Şifrə Təsdiqi *</label>
+                    <input id="regConfirmPassword" type="password" required minlength="6" placeholder="Şifrəni təkrar daxil edin" class="w-full text-xs p-2.5 border border-slate-300 rounded-xl outline-none focus:border-indigo-500">
+                </div>
+                <p class="text-[10px] text-slate-500">Qeydiyyat həmişə <strong>Tələbə</strong> rolunu verir. Müəllim olmaq üçün hesabınıza daxil olub müraciət edin.</p>
+                <div id="regAlert" class="hidden text-xs text-rose-600 bg-rose-50 border border-rose-200 p-2.5 rounded-xl font-medium"></div>
+                <button type="button" onclick="handleRegister(event)" id="regSubmitBtn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs py-2.5 rounded-xl transition shadow">
+                    Qeydiyyatı Tamamla
+                </button>
+            </form>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 text-center text-xs text-slate-500">
+                <span id="authFooterText">Hesabınız yoxdur?</span>
+                <button type="button" onclick="switchAuthTab('register')" id="authFooterBtn" class="ml-1 font-bold text-indigo-600 hover:underline">Qeydiyyatdan keç</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="js/app.js?v=20261118"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: learnova_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: learnova_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5433:5432"
+    volumes:
+      - learnova_pgdata:/var/lib/postgresql/data
+      # Schema only — Java DataInitializer owns seed data (avoids partial SQL blocking content seed)
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d learnova_db"]
+      interval: 4s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: learnova_app
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/learnova_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JWT_SECRET: ${JWT_SECRET:-LearnovaSuperSecretKey2026SecureJwtAuthenticationKeyLongString}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@learnova.az}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-password123}
+      APP_DEMO_ACCOUNTS: ${APP_DEMO_ACCOUNTS:-false}
+      APP_SEED_SAMPLE_CONTENT: ${APP_SEED_SAMPLE_CONTENT:-true}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  learnova_pgdata:
